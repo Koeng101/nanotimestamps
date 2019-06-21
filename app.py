@@ -98,7 +98,7 @@ class TimeStampJson(Resource):
 ns_validate = Namespace('validate',description='Validate a block on the blockchain')
 validate_schema = {"$schema": "http://json-schema.org/schema#",
             "type": "object",
-            "properties": {"message": {"type": "string"}},
+            "properties": {"message": {"type": "string"},
                 "block": {"type": "string"}
                 },
             "required": ["message","block"],
