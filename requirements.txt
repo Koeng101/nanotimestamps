@@ -4,7 +4,7 @@ Flask-Cors==3.0.7
 
 gunicorn
 flask_restplus
-
+requests
 jsonschema
 nanolib
 psycopg2-binary
