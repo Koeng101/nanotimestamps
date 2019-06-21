@@ -47,7 +47,7 @@ def hash_to_chain(hex_dig, seed=SEED, rep=REP, api=API, api_key=API_KEY):
 
 # Namespaces
 ns_stamp = Namespace('timestamp',description='Timestamp on the nano network! Input is utf-8 encoded and sha256 hashed, then sent to that nano address')
-json_stamp_model = ns_stamp.schema_model('timestamp',{"$schema": "http://json-schema.org/schema#",
+json_stamp_model = ns_stamp.schema_model('json_timestamp',{"$schema": "http://json-schema.org/schema#",
             "type": "object",
             "properties": {"target_json": {"type": "object"}},
             "required": ["target_json"],
@@ -66,7 +66,7 @@ class TimeStampJson(Resource):
             return jsonify({'message': 'Failed on: {}'.format(e)})
         return jsonify({**new_hash,**{"target_json_string": json.dumps(request.get_json()['target_json'])}})
 
-string_stamp_model = ns_stamp.schema_model('timestamp',{"$schema": "http://json-schema.org/schema#",
+string_stamp_model = ns_stamp.schema_model('string_timestamp',{"$schema": "http://json-schema.org/schema#",
             "type": "object",
             "properties": {"target_string": {"type": "string"}},
             "required": ["target_string"],
