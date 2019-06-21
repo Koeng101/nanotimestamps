@@ -47,10 +47,12 @@ def hash_to_chain(hex_dig, seed=SEED, rep=REP, api=API, api_key=API_KEY):
 def validate_block(block,message,api=API,api_key=API_KEY):
     headers = {'Authorization': api_key}
     info = requests.post(api, json={"action": "block_info", "hash":block}, headers=headers).json()
+    if 'contents' not in info:
+        return info
     contents = json.loads(info['contents'])
     encoded = hashlib.sha256(message.encode('utf-8')).hexdigest().upper()
     if contents['link'].upper() == encoded:
-        return {'valid':True}
+        return {'valid':True, 'timestamp': datetime.datetime.fromtimestamp(int(info['local_timestamp'])).isoformat()}
     else:
         return {'valid':False}
 
