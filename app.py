@@ -44,6 +44,18 @@ def hash_to_chain(hex_dig, seed=SEED, rep=REP, api=API, api_key=API_KEY):
     r = requests.post(api, json={"action": "process", "block": new_block.json()}, headers=headers).json()
     return r
 
+def validate_block(block,message,api=API,api_key=API_KEY):
+    headers = {'Authorization': api_key}
+    info = requests.post(api, json={"action": "block_info", "hash":block}, headers=headers).json()
+    contents = json.loads(info['contents'])
+    if type(message) == str:
+        encoded = hashlib.sha256(message.encode('utf-8')).hexdigest().upper()
+    if type(message) == dict:
+        encoded = hashlib.sha256(json.dumps(message).encode('utf-8')).hexdigest()
+    if contents['link'].upper() == encoded:
+        return {'valid':True}
+    else:
+        return {'valid':False}
 
 # Namespaces
 ns_stamp = Namespace('timestamp',description='Timestamp on the nano network! Input is utf-8 encoded and sha256 hashed, then sent to that nano address')
@@ -86,8 +98,30 @@ class TimeStampJson(Resource):
             return jsonify({'message': 'Failed on: {}'.format(e)})
         return jsonify({**new_hash,**{"target_string": target_string}})
 
-api.add_namespace(ns_stamp)
+ns_validate = Namespace('validate',description='Validate a block on the blockchain')
+validate_schema = {"$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "properties": {"message": {"oneOf": [{"type": "string"}, {"type": "object"}]},
+                "block": {"type": "string"}
+                },
+            "required": ["message","block"],
+            "additionalProperties": False}
+validate_model = ns_validate.schema_model('string_json_validate',validate_schema)
 
+@ns_validate.route('/')
+class ValidateBlock(Resource):
+    @ns_validate.doc('validate_basic')
+    @ns_validate.expect(validate_model)
+    def post(self):
+        obj = request.get_json()
+        try:
+            validate(instance=obj,schema=validate_schema)
+        except Exception as e:
+            return make_response(jsonify({'message': 'Failed on: {}'.format(e)}),422)
+        return jsonify(validate_block(obj['block'],obj['message']))
+
+api.add_namespace(ns_stamp)
+api.add_namespace(ns_validate)
 if __name__ == '__main__':
     app.run()
 
