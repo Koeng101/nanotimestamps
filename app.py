@@ -48,10 +48,7 @@ def validate_block(block,message,api=API,api_key=API_KEY):
     headers = {'Authorization': api_key}
     info = requests.post(api, json={"action": "block_info", "hash":block}, headers=headers).json()
     contents = json.loads(info['contents'])
-    if type(message) == str:
-        encoded = hashlib.sha256(message.encode('utf-8')).hexdigest().upper()
-    if type(message) == dict:
-        encoded = hashlib.sha256(json.dumps(message).encode('utf-8')).hexdigest()
+    encoded = hashlib.sha256(message.encode('utf-8')).hexdigest().upper()
     if contents['link'].upper() == encoded:
         return {'valid':True}
     else:
@@ -101,12 +98,12 @@ class TimeStampJson(Resource):
 ns_validate = Namespace('validate',description='Validate a block on the blockchain')
 validate_schema = {"$schema": "http://json-schema.org/schema#",
             "type": "object",
-            "properties": {"message": {"oneOf": [{"type": "string"}, {"type": "object"}]},
+            "properties": {"message": {"type": "string"}},
                 "block": {"type": "string"}
                 },
             "required": ["message","block"],
             "additionalProperties": False}
-validate_model = ns_validate.schema_model('string_json_validate',validate_schema)
+validate_model = ns_validate.schema_model('string_validate',validate_schema)
 
 @ns_validate.route('/')
 class ValidateBlock(Resource):
