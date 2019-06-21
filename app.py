@@ -46,20 +46,39 @@ def hash_to_chain(hex_dig, seed=SEED, rep=REP, api=API, api_key=API_KEY):
 
 
 # Namespaces
-ns_stamp = Namespace('timestamp',description='Timestamp on the nano network! Returns target_json_string which is string version of target_json. This is encoded in utf-8 before sha256 hash.')
-stamp_model = ns_stamp.schema_model('timestamp',{"$schema": "http://json-schema.org/schema#",
+ns_stamp = Namespace('timestamp',description='Timestamp on the nano network! Input is utf-8 encoded and sha256 hashed, then sent to that nano address')
+json_stamp_model = ns_stamp.schema_model('timestamp',{"$schema": "http://json-schema.org/schema#",
             "type": "object",
             "properties": {"target_json": {"type": "object"}},
             "required": ["target_json"],
             "additionalProperties": False})
 
-@ns_stamp.route('/')
-class TimeStamp(Resource):
+@ns_stamp.route('/json/')
+class TimeStampJson(Resource):
     @ns_stamp.doc('timestamp')
-    @ns_stamp.expect(stamp_model)
+    @ns_stamp.expect(json_stamp_model)
     def post(self):
         try:
             sha_new_hash = hashlib.sha256(json.dumps(request.get_json()['target_json']).encode('utf-8')).hexdigest()
+            new_hash = hash_to_chain(sha_new_hash)
+        except Exception as e:
+            print(e)
+            return jsonify({'message': 'Failed on: {}'.format(e)})
+        return jsonify({**new_hash,**{"target_json_string": json.dumps(request.get_json()['target_json'])}})
+
+string_stamp_model = ns_stamp.schema_model('timestamp',{"$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "properties": {"target_string": {"type": "string"}},
+            "required": ["target_string"],
+            "additionalProperties": False})
+
+@ns_stamp.route('/string/')
+class TimeStampJson(Resource):
+    @ns_stamp.doc('timestamp')
+    @ns_stamp.expect(string_stamp_model)
+    def post(self):
+        try:
+            sha_new_hash = hashlib.sha256(request.get_json()['target_string'].encode('utf-8')).hexdigest()
             new_hash = hash_to_chain(sha_new_hash)
         except Exception as e:
             print(e)
