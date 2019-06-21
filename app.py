@@ -1,9 +1,7 @@
 import os
 from flask import Flask, abort, request, jsonify, g, url_for, make_response
-from flask_sqlalchemy import SQLAlchemy
 from flask_restplus import Api, Resource, fields, Namespace
 from flask_cors import CORS
-from flask_migrate import Migrate
 import datetime
 from jsonschema import validate
 import json
