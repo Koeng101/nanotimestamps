@@ -1,0 +1,12 @@
+
+Flask==1.0.2
+Flask-Cors==3.0.7
+
+gunicorn
+flask_sqlalchemy
+flask_restplus
+flask_httpauth
+passlib
+jsonschema
+nanolib
+psycopg2-binary
