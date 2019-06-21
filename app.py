@@ -77,13 +77,14 @@ class TimeStampJson(Resource):
     @ns_stamp.doc('timestamp')
     @ns_stamp.expect(string_stamp_model)
     def post(self):
+        target_string = request.get_json()['target_string']
         try:
-            sha_new_hash = hashlib.sha256(request.get_json()['target_string'].encode('utf-8')).hexdigest()
+            sha_new_hash = hashlib.sha256(target_string.encode('utf-8')).hexdigest()
             new_hash = hash_to_chain(sha_new_hash)
         except Exception as e:
             print(e)
             return jsonify({'message': 'Failed on: {}'.format(e)})
-        return jsonify({**new_hash,**{"target_json_string": json.dumps(request.get_json()['target_json'])}})
+        return jsonify({**new_hash,**{"target_string": target_string}})
 
 api.add_namespace(ns_stamp)
 
